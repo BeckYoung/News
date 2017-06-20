@@ -10,11 +10,7 @@ import android.view.ViewGroup;
 import com.beck.news.R;
 
 /**
- * Description :
- * Author : lauren
- * Email  : lauren.liuling@gmail.com
- * Blog   : http://www.liuling123.com
- * Date   : 15/12/13
+ * Description :关于
  */
 public class AboutFragment extends Fragment {
 
