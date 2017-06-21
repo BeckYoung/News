@@ -21,6 +21,10 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="TextAppearance.Detail" parent="Base.TextAppearance.AppCompat.Title">
+        <item name="android:textSize">@dimen/detailTitleExpand</item>
+    </style>
+
     <style name="weacher_title">
         <item name="android:textSize">21.0sp</item>
         <item name="android:textColor">@color/icons</item>
