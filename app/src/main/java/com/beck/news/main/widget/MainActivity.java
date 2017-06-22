@@ -1,5 +1,6 @@
 package com.beck.news.main.widget;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -19,10 +20,7 @@ import com.beck.news.news.widget.NewsFragment;
 import com.beck.news.weather.widget.WeatherFragment;
 
 /**
- * Author : lauren
- * Email  : lauren.liuling@gmail.com
- * Blog   : http://www.liuling123.com
- * Date   : 15/12/13
+ * Author : xhp
  */
 public class MainActivity extends AppCompatActivity implements MainView {
 
@@ -87,5 +85,13 @@ public class MainActivity extends AppCompatActivity implements MainView {
     public void switch2About() {
         getSupportFragmentManager().beginTransaction().replace(R.id.frame_content, new AboutFragment()).commit();
         mToolbar.setTitle(R.string.navigation_about);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent setIntent = new Intent(Intent.ACTION_MAIN);
+        setIntent.addCategory(Intent.CATEGORY_HOME);
+        setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(setIntent);
     }
 }

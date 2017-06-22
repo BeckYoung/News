@@ -42,7 +42,6 @@ public class NewsListFragment extends Fragment implements NewsView, SwipeRefresh
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
     private NewsAdapter mAdapter;
-    private List<NewsBean> mData;
     private NewsPresenter mNewsPresenter;
 
     private int mType = NewsFragment.NEWS_TYPE_TOP;
@@ -102,9 +101,9 @@ public class NewsListFragment extends Fragment implements NewsView, SwipeRefresh
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
-            if (newState == RecyclerView.SCROLL_STATE_IDLE
-                    && lastVisibleItem + 1 == mAdapter.getItemCount()
-                    && mAdapter.isShowFooter()) {
+            int visibleItemCount = mLayoutManager.getChildCount();
+            if (visibleItemCount > 0 &&newState == RecyclerView.SCROLL_STATE_IDLE
+                    && lastVisibleItem + 1 == mAdapter.getItemCount()) {
                 //加载更多
                 LogUtils.d(TAG, "loading more data");
                 mNewsPresenter.loadNews(mType, pageIndex + Urls.PAZE_SIZE);
@@ -115,9 +114,7 @@ public class NewsListFragment extends Fragment implements NewsView, SwipeRefresh
     private NewsAdapter.OnItemClickListener mOnItemClickListener = new NewsAdapter.OnItemClickListener() {
         @Override
         public void onItemClick(View view, int position) {
-            if (mData.size() <= 0) {
-                return;
-            }
+
             NewsBean news = mAdapter.getItem(position);
             Intent intent = new Intent(getActivity(), NewsDetailActivity.class);
             intent.putExtra("news", news);
@@ -138,20 +135,9 @@ public class NewsListFragment extends Fragment implements NewsView, SwipeRefresh
 
     @Override
     public void addNews(List<NewsBean> newsList) {
-        mAdapter.isShowFooter(true);
-        if(mData == null) {
-            mData = new ArrayList<NewsBean>();
-        }
-        mData.addAll(newsList);
-        if(pageIndex == 0) {
-            mAdapter.setmDate(mData);
-        } else {
-            //如果没有更多数据了,则隐藏footer布局
-            if(newsList == null || newsList.size() == 0) {
-                mAdapter.isShowFooter(false);
-            }
-            mAdapter.notifyDataSetChanged();
-        }
+        if(pageIndex==0)
+            mAdapter.clear();
+        mAdapter.addAll(newsList);
         pageIndex += Urls.PAZE_SIZE;
     }
 
@@ -163,10 +149,7 @@ public class NewsListFragment extends Fragment implements NewsView, SwipeRefresh
 
     @Override
     public void showLoadFailMsg() {
-        if(pageIndex == 0) {
-            mAdapter.isShowFooter(false);
-            mAdapter.notifyDataSetChanged();
-        }
+
         View view = getActivity() == null ? mRecyclerView.getRootView() : getActivity().findViewById(R.id.drawer_layout);
         Snackbar.make(view, getString(R.string.load_fail), Snackbar.LENGTH_SHORT).show();
     }
@@ -174,9 +157,7 @@ public class NewsListFragment extends Fragment implements NewsView, SwipeRefresh
     @Override
     public void onRefresh() {
         pageIndex = 0;
-        if(mData != null) {
-            mData.clear();
-        }
+
         mNewsPresenter.loadNews(mType, pageIndex);
     }
 

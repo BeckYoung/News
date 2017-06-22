@@ -12,6 +12,7 @@ import com.beck.news.R;
 import com.beck.news.beans.NewsBean;
 import com.beck.news.utils.ImageLoaderUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,7 +27,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_FOOTER = 1;
 
     private List<NewsBean> mData;
-    private boolean mShowFooter = true;
+    RecyclerView recyclerView;
     private Context mContext;
 
     private OnItemClickListener mOnItemClickListener;
@@ -35,17 +36,41 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.mContext = context;
     }
 
-    public void setmDate(List<NewsBean> data) {
-        this.mData = data;
-        this.notifyDataSetChanged();
+    public void clear() {
+        if (mData != null)
+            mData.clear();
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        this.recyclerView = recyclerView;
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        this.recyclerView = null;
+    }
+
+    public void addAll(List<NewsBean> data) {
+        if (data != null) {
+            if (mData == null)
+                mData = new ArrayList<>();
+            mData.addAll(data);
+        }
+        if (canChange())
+            this.notifyDataSetChanged();
+    }
+
+    public boolean canChange() {
+        return recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE ||
+                !recyclerView.isComputingLayout();
     }
 
     @Override
     public int getItemViewType(int position) {
         // 最后一个item设置为footerView
-        if(!mShowFooter) {
-            return TYPE_ITEM;
-        }
         if (position + 1 == getItemCount()) {
             return TYPE_FOOTER;
         } else {
@@ -56,7 +81,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                       int viewType) {
-        if(viewType == TYPE_ITEM) {
+        if (viewType == TYPE_ITEM) {
             View v = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_news, parent, false);
             ItemViewHolder vh = new ItemViewHolder(v);
@@ -72,10 +97,10 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        if(holder instanceof ItemViewHolder) {
+        if (holder instanceof ItemViewHolder) {
 
             NewsBean news = mData.get(position);
-            if(news == null) {
+            if (news == null) {
                 return;
             }
             ((ItemViewHolder) holder).mTitle.setText(news.getTitle());
@@ -88,24 +113,16 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        int begin = mShowFooter?1:0;
-        if(mData == null) {
-            return begin;
+        if (mData == null) {
+            return 0;
         }
-        return mData.size() + begin;
+        return mData.size() + 1;
     }
 
     public NewsBean getItem(int position) {
         return mData == null ? null : mData.get(position);
     }
 
-    public void isShowFooter(boolean showFooter) {
-        this.mShowFooter = showFooter;
-    }
-
-    public boolean isShowFooter() {
-        return this.mShowFooter;
-    }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.mOnItemClickListener = onItemClickListener;
@@ -139,7 +156,7 @@ public class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         @Override
         public void onClick(View view) {
-            if(mOnItemClickListener != null) {
+            if (mOnItemClickListener != null) {
                 mOnItemClickListener.onItemClick(view, this.getPosition());
             }
         }
